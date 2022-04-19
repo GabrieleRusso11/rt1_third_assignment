@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<include file="$(find final_assignment)/launch/simulation_gmapping.launch" />
+	<include file="$(find final_assignment)/launch/move_base.launch" />
+
+	<node name="UI_node" pkg="rt1_third_assignment"
+	      type="UI_node" output="screen"
+	      required="false" launch-prefix="gnome-terminal -- sh -c" />
+
+	<node name="controller_node" pkg="rt1_third_assignment"
+			type="controller_node" output="screen"
+			required="false" launch-prefix="gnome-terminal -- sh -c" />
+
+	<remap from="cmd_vel" to="Velocity_control" />
+	<node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard"
+	      type="teleop_twist_keyboard.py" launch-prefix="gnome-terminal -- sh -c" />
+	
+</launch>
