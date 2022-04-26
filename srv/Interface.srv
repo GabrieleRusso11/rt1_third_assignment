@@ -1,1 +1,3 @@
 char command
+---
+bool feedback
