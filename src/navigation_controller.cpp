@@ -107,8 +107,8 @@ bool interface(rt1_third_assignment::Interface::Request &req, rt1_third_assignme
 	}
 	else if(req.command == 'd'){
 		assisted = true;
+		manual = true;
 		auto_mode = false;
-		manual = false;
 		cout<<"assisted driving mode"<<endl;
 	}
 	else if(req.command == 'c'){
