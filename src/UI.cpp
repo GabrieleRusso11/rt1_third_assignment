@@ -1,6 +1,7 @@
 #include <ros/ros.h>
-#include <RT1_third_assignment/Goal.h>
-#include <RT1_third_assignment/Interface.h>
+#include <iostream>
+#include <rt1_third_assignment/Goal.h>
+#include <rt1_third_assignment/Interface.h>
 
 using namespace std;
 
@@ -10,23 +11,29 @@ int main(int argc, char** argv){
 
     ros::NodeHandle n;
 
-    ros::ServiceClient client_goal = n.serviceClient<RT1_third_assignment::Goal>("/goal_position");
+    ros::ServiceClient client_goal = n.serviceClient<rt1_third_assignment::Goal>("/goal_position");
 
-    ros::ServiceClient client_interface = n.serviceClient<RT1_third_assignment::Interface>("/commands");
+    ros::ServiceClient client_interface = n.serviceClient<rt1_third_assignment::Interface>("/commands");
+    //ros::ServiceClient client_interface = n.serviceClient<rt1_third_assignment::Interface>("/commands");
 
-    RT1_third_assignment::Goal pos;
+    rt1_third_assignment::Goal pos;
 
-    RT1_third_assignment::Interface com;
+    rt1_third_assignment::Interface com;
 
     while(ros::ok()){
         int command = 0;
         cout<<"choose the modality : "<<endl;
-        cout<<" * auotonomus drive -> press 1 "<<endl;
-        cout<<" * manual drive -> press 2 "<<endl;
+        cout<<endl<<" * auotonomus drive -> press 1 "<<endl;
+        cout<<endl<<" * manual drive -> press 2 "<<endl;
+        cout<<endl<<" * driving assistance -> press 3"<<endl;
+        cout<<endl<<" * cancel the goal -> press 4 "<<endl;
         cin>>command;
 
         if(command == 1){
             
+            com.request.command = 'a';
+            client_interface.waitForExistence();
+            client_interface.call(com);
             cout<<"Insert the x position"<<endl;
             cin>>pos.request.x;
 
@@ -36,10 +43,9 @@ int main(int argc, char** argv){
             client_goal.waitForExistence();
             client_goal.call(pos);
 
-            if(pos.response.feedback = 1){
-                cout<<"ERROR (elapsed Timeout) : check if the coordinate are reachable and retry with the feasible ones."<<endl;
-            }
-            else{
+            cout<<"the goal position is sent to the controller"<<endl;
+
+            if(pos.response.feedback == true){
                 cout<<"OKAY : The Goal is Achieved."<<endl;
             }
         }
@@ -47,8 +53,32 @@ int main(int argc, char** argv){
             
             cout<<"Now You are in the manual drive mode, You can use teleop to conntrol the robot."<<endl;
             com.request.command = 'm';
+            client_interface.waitForExistence();
+            client_interface.call(com);
+             
 
         }
+        else if(command == 3){
+
+            cout<<"Now You are in the assisted drive mode"<<endl;
+            com.request.command = 'd';
+            client_interface.waitForExistence();
+            client_interface.call(com);
+             
+
+        }
+        else if(command == 4){
+            com.request.command = 'c';
+            client_interface.waitForExistence();
+            client_interface.call(com);
+        }
+        else if(command == 0){
+
+            exit(0);
+
+        }
+
+        
     }
     
     ros::spin();

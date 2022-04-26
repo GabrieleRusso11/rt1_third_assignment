@@ -1,11 +1,17 @@
 #include <ros/ros.h>
-
+#include <string>
+#include <iostream>
+#include <chrono>
 // this line includes the Action Specification for move_base which is a ROS action that exposes 
 // a high level interface to the navigation stack.
 // The move_base action accepts goals from clients and attempts to move the robot to the
 // specified position/orientation in the world.
 #include <move_base_msgs/MoveBaseAction.h>
+#include <move_base_msgs/MoveBaseActionGoal.h>
+#include <move_base_msgs/MoveBaseActionFeedback.h>
 #include <actionlib/client/simple_action_client.h>
+#include <sensor_msgs/LaserScan.h>
+#include <actionlib_msgs/GoalID.h>
 #include <rt1_third_assignment/Goal.h>
 #include <rt1_third_assignment/Velocity_control.h>
 #include <rt1_third_assignment/Interface.h>
@@ -18,24 +24,147 @@ using namespace std;
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-double timeout = 120.0;
+double timeout = 120000000;
 int TeleopVel;
+string id = ""; 
+
+bool auto_mode = false;
 bool manual = false;
+bool assisted = false;
+bool canc = false;
 
-void velCallback(const rt1_third_assignment::Velocity_control::ConstPtr & msg){
+float robot_x;
+float robot_y;
 
-		TeleopVel = msg->vel;
+float dist_x = 100;
+float dist_y = 100;
+
+float goal_x = 0.0;
+float goal_y = 0.0;
+float goal_th = 0.3;
+
+ros::Publisher pubVel;
+ros::Publisher pubCanc;
+
+chrono::high_resolution_clock::time_point t_start;  
+chrono::high_resolution_clock::time_point t_end; 
+
+geometry_msgs::Twist teleopVel;
+geometry_msgs::Twist new_vel;
+
+/*
+ranges will contain all distances detected by the laser scan sensor 
+(between 0 and 180 degrees),whereas right_side, left_side and front_side
+are ranges subsection. 
+front_side contains all frontal distances between 
+80 and 100 degrees.
+right_side contains all lateral distances between 0 and 80 degrees.
+left_side contains all lateral distances between 100 and 180 degrees                                                           
+*/
+float ranges[720], right_side[320], left_side[320], front_side[80];
+
+float th = 0.5;
+
+void velCallback(const geometry_msgs::Twist::ConstPtr & msg){
+
+		if(manual == true){
+
+			pubVel.publish(msg);
+
+		}
+		if(assisted == true){
+
+			new_vel.linear.x = msg->linear.x;
+    		new_vel.angular.z = msg->angular.z;
+
+		}
+		else{
+
+			return;
+			
+		}
 
 }
 
 bool interface(rt1_third_assignment::Interface::Request &req, rt1_third_assignment::Interface::Response &res){
 
+
 	if(req.command == 'm'){
+
 		manual = true;
+		auto_mode = false;
+		assisted = false;
+		cout<<"manual mode"<<endl;
+
+	}
+	else if(req.command == 'a'){
+
+		auto_mode = true;
+		manual = false;
+		assisted = false;
+		cout<<"auto mode"<<endl;
+
+	}
+	else if(req.command == 'd'){
+		assisted = true;
+		auto_mode = false;
+		manual = false;
+		cout<<"assisted driving mode"<<endl;
+	}
+	else if(req.command == 'c'){
+
+		actionlib_msgs::GoalID canc_goal;
+		canc_goal.id = id;
+        pubCanc.publish(canc_goal);
+		cout<<"goal canceled"<<endl;
+
 	}
 
 	return true;
+
 }
+
+void robotPosition(const move_base_msgs::MoveBaseActionFeedback::ConstPtr& msg) {
+
+    // Take the current robot position
+
+	robot_x = msg->feedback.base_position.pose.position.x;
+	robot_y = msg->feedback.base_position.pose.position.y;
+    //cout<<"robot pos x"<<robot_x<<endl;
+
+	// Compute the error from the actual position and the goal position
+	dist_x = robot_x - goal_x;
+	dist_y = robot_y - goal_y;
+
+	if (id != msg->status.goal_id.id) {
+
+        id = msg->status.goal_id.id;
+
+    }
+
+	if(abs(dist_x) <= goal_th && abs(dist_y) <= goal_th){
+
+		actionlib_msgs::GoalID canc_goal;
+		canc_goal.id = id;
+        pubCanc.publish(canc_goal);
+		cout<<"goal reached"<<endl;
+
+	}
+
+	
+	t_end = std::chrono::high_resolution_clock::now();
+	auto time = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start).count();
+	if (time > timeout) {
+		actionlib_msgs::GoalID canc_goal;
+		printf("\nThe goal point can't be reached!\n");
+		canc_goal.id = id;
+		pubCanc.publish(canc_goal);
+		printf("Goal cancelled.\n");
+	}
+	
+    	
+}
+	
 bool goalPosition(rt1_third_assignment::Goal::Request &req, rt1_third_assignment::Goal::Response &res){
 
 		move_base_msgs::MoveBaseGoal goal;
@@ -57,11 +186,13 @@ bool goalPosition(rt1_third_assignment::Goal::Request &req, rt1_third_assignment
 
 		//we will send a goal to the robot to move 1 meter forward
 		goal.target_pose.header.frame_id = "map";
-		goal.target_pose.header.stamp = ros::Time::now();
+		//goal.target_pose.header.stamp = ros::Time::now();
 	
 		goal.target_pose.pose.orientation.w = 1.0;
 		goal.target_pose.pose.position.x = req.x;
 		goal.target_pose.pose.position.y = req.y;
+		goal_x = goal.target_pose.pose.position.x;
+		goal_y = goal.target_pose.pose.position.y;
 
 		// this line wait for the action server to report that it has come up and is ready to begin
 		// processing goals
@@ -70,12 +201,13 @@ bool goalPosition(rt1_third_assignment::Goal::Request &req, rt1_third_assignment
 		while(!ac.waitForServer(ros::Duration(5.0))){
 			ROS_INFO("Waiting for the move_base action server to come up");
 		}
-	
-
 		
 		ROS_INFO("Sending goal");
 		ac.sendGoal(goal);
 		
+		t_start = std::chrono::high_resolution_clock::now();
+		/* THIS PART DOESN'T WORK
+
 		// the only thing left to do now is to wait for the goal to finish using the ac.waitForGoalToFinish 
 		// call which will block until the move_base action is done processing the goal we sent it. 
 		// After it finishes, we can check if the goal succeded or failed and output a message to the user 
@@ -94,8 +226,124 @@ bool goalPosition(rt1_third_assignment::Goal::Request &req, rt1_third_assignment
 			res.feedback = 1; // the User Interface node will receive "error" as feedback
 			ac.cancelGoal();
 		}
+		
+		*/
+		
+
 		return true;
 	}
+
+float min_right_side(float * r){
+	float min_r = 100;
+	int j = 0;
+	for(int i = 0; i < 320; i++){
+		right_side[j] = r[i];
+		if(right_side[j] < min_r){
+			min_r = right_side[j];
+		}
+		j++;
+	}
+	return min_r;
+}
+
+// min_left_side is a function that takes as input parameter the ranges array
+// ,computes the minimum value among the left lateral distances contained in 
+// the left_side array and returns the minimum value as output.
+float min_left_side(float * r){
+	float min_l = 100;
+	int j = 0;
+	for(int i = 400; i < 720; i++){
+		left_side[j] = r[i];
+		if(left_side[j] < min_l){
+			min_l = left_side[j];
+		}
+		j++;
+	}
+	return min_l;
+}
+
+// min_front_side is a function that takes as input parameter the ranges array
+// ,computes the minimum value among the frontal distances contained in 
+// the front_side array and returns the minimum value as output.
+float min_front_side(float * r){
+	float min_f = 100;
+	int j=0;
+	for(int i = 320; i < 400; i++){
+		front_side[j] = r[i];
+		if(front_side[j] <  min_f){
+			min_f = front_side[j];
+		}
+		j++;
+	}
+	return min_f;
+}
+
+
+
+// avoid_walls is a function used to avoid that the robot crashes on the walls
+// of the circuit. It takes as input parameters the front, left and right minimum
+// values, computed by the min_left_side, min_right_side amd min_front_side
+// functions and using this values it checks if the robot crosses the threshold
+// ,for instance, firstly it checks if the front min value is less than th, 
+// if it isn't ,the robot go on ,otherwise it checks if the left min
+// is less than the right min and vice versa. If the left min is less than the right min 
+// it means that the nearest wall is on the left and so on.
+void avoid_walls(float front, float left, float right){
+
+	float speed_d = left + right;
+
+	if(new_vel.linear.x > 0 && new_vel.angular.z == 0){ //you are going forward
+
+		if(front < th){
+
+			new_vel.linear.x = 0;
+			pubVel.publish(new_vel);
+			cout<<"There is an obstacle in front of you"<<endl;
+
+		}
+	}
+
+	else if(new_vel.linear.x >0 && new_vel.angular.z < 0){
+
+		if(right < th){
+
+			new_vel.linear.x = 0;
+			new_vel.angular.z = 0;
+			pubVel.publish(new_vel);
+			cout<<"There is an obstacle on the right"<<endl;
+
+		}
+	}
+
+	else if(new_vel.linear.x >0 && new_vel.angular.z > 0){
+
+		if(left < th){
+
+			new_vel.linear.x = 0;
+			new_vel.angular.z = 0;
+			pubVel.publish(new_vel);
+			cout<<"There is an obstacle on the left"<<endl;
+
+		}
+
+	}
+
+}
+
+
+void drivingAssistance(const sensor_msgs::LaserScan::ConstPtr& msg){
+
+	for(int i = 0; i < 720 ; i++){
+		ranges[i] = msg -> ranges[i]; 
+	}
+	
+	float f = min_front_side(ranges);
+	float l = min_left_side(ranges);
+	float r = min_right_side(ranges);
+	
+	avoid_walls(f, l, r);
+
+}
 
 int main(int argc, char** argv){
 
@@ -103,28 +351,23 @@ int main(int argc, char** argv){
 		
 	ros::NodeHandle n;
 	
-	ros::Subscriber subTeleVel = n.subscribe("rt1_third_assignment/Velocity_control", 1000, velCallback);
+	ros::Subscriber subTeleVel = n.subscribe("/Velocity_control", 1000, velCallback); // teleop remapping
 
-	ros::Publisher pubVel = n.advertise<geometry_msgs::Twist>("/cmd_vel",1000);
-	// server of the /velocity_control custom service
+	ros::Subscriber subPos = n.subscribe("/move_base/feedback", 1000, robotPosition);
+
+	ros::Subscriber sub_laser = n.subscribe("/scan", 1000, drivingAssistance); // Laser scanner
+	
+	pubVel = n.advertise<geometry_msgs::Twist>("/cmd_vel",1000);
+
+	pubCanc = n.advertise<actionlib_msgs::GoalID>("/move_base/cancel",1000);
+	
 	ros::ServiceServer service_goal = n.advertiseService("/goal_position", goalPosition);
 
 	ros::ServiceServer service_interface = n.advertiseService("/commands", interface);
 
-	while(ros::ok()){
-
-		if(manual == true){
-
-      		//pubVel.publish(TeleopVel);
-
-		}
-
-	}
 	// it blocks the main thread from exiting until ROS invokes a shutdown.
+
 	ros::spin();
-
-	
-
 	
 	
 	return 0;
