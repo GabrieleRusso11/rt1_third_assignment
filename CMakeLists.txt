@@ -9,6 +9,7 @@ project(rt1_third_assignment)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   actionlib
+  actionlib_msgs
   move_base_msgs
   roscpp
   message_generation
@@ -49,10 +50,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-   FILES
-   Velocity_control.msg
-)
+## add_message_files(
+##   FILES
+   
+## )
 
 ## Generate services in the 'srv' folder
 add_service_files(
@@ -73,6 +74,7 @@ generate_messages(
    DEPENDENCIES
    move_base_msgs
    std_msgs
+   actionlib_msgs
  )
 
 ################################################
