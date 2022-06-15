@@ -63,8 +63,16 @@ left_side contains all lateral distances between 100 and 180 degrees
 */
 float ranges[720], right_side[320], left_side[320], front_side[80];
 
-float th = 0.5;
+float th = 0.5; // threshold which let us to consider a goal reached
 
+/*
+This is the callback function of the topic Velocity_control where Teleop is remapped.
+Teleop is used only in the manual and assisted drive, so it can not always publish
+on the cmd_vel topic, for this teleop is remapped on the Velocity_control topic.
+In this way if the user uses teleop during the auto mode, it doesn't make effect on 
+robot, becouse it publish on the Velocity_control topic that publish on the cmd_vel
+topic only in the manual and assisted mode.
+*/
 void velCallback(const geometry_msgs::Twist::ConstPtr & msg){
 
 		if(manual == true){
@@ -86,6 +94,15 @@ void velCallback(const geometry_msgs::Twist::ConstPtr & msg){
 
 }
 
+/*
+This function is called when the custom server (server_interface) is called.
+It takes from the user interface node the command, given by the user.
+For the auto, manual and assisted mode it sets the value of 3 boolean variable that 
+are then used in the velCallback function to say if teleop can publish on teleop or 
+not.
+Instead when the user wants to cancel the actual goal, it checks the id of the goal
+and publish on the move_base/cancel topic to cancel it.
+*/
 bool interface(rt1_third_assignment::Interface::Request &req, rt1_third_assignment::Interface::Response &res){
 
 
@@ -124,13 +141,17 @@ bool interface(rt1_third_assignment::Interface::Request &req, rt1_third_assignme
 
 }
 
+/*
+this function is used to take the position of the robot during its motion 
+using the move_base/feedback 
+*/
 void robotPosition(const move_base_msgs::MoveBaseActionFeedback::ConstPtr& msg) {
 
-    // Take the current robot position
+    	// Take the current robot position
 
-	robot_x = msg->feedback.base_position.pose.position.x;
-	robot_y = msg->feedback.base_position.pose.position.y;
-    //cout<<"robot pos x"<<robot_x<<endl;
+    	robot_x = msg->feedback.base_position.pose.position.x;
+    	robot_y = msg->feedback.base_position.pose.position.y;
+    	//cout<<"robot pos x"<<robot_x<<endl;
 
 	// Compute the error from the actual position and the goal position
 	dist_x = robot_x - goal_x;
@@ -140,13 +161,13 @@ void robotPosition(const move_base_msgs::MoveBaseActionFeedback::ConstPtr& msg) 
 
         id = msg->status.goal_id.id;
 
-    }
+    	}
 
 	if(abs(dist_x) <= goal_th && abs(dist_y) <= goal_th){
 
 		actionlib_msgs::GoalID canc_goal;
 		canc_goal.id = id;
-        pubCanc.publish(canc_goal);
+        	pubCanc.publish(canc_goal);
 		cout<<"goal reached"<<endl;
 
 	}
