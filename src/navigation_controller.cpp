@@ -2,10 +2,6 @@
 #include <string>
 #include <iostream>
 #include <chrono>
-// this line includes the Action Specification for move_base which is a ROS action that exposes 
-// a high level interface to the navigation stack.
-// The move_base action accepts goals from clients and attempts to move the robot to the
-// specified position/orientation in the world.
 #include <move_base_msgs/MoveBaseAction.h>
 #include <move_base_msgs/MoveBaseActionGoal.h>
 #include <move_base_msgs/MoveBaseActionFeedback.h>
@@ -20,11 +16,9 @@ using namespace std;
 
 // this line creates a convenience typedef for a SimpleActionClient that will allow us to communicate
 // with actions that adhere to the MoveBaseAction action interface
-
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-double timeout = 120000000;
-int TeleopVel;
+double timeout = 120000000; // are 2 minutes
 string id = ""; 
 
 bool auto_mode = false;
@@ -35,8 +29,8 @@ bool canc = false;
 float robot_x;
 float robot_y;
 
-float dist_x = 100;
-float dist_y = 100;
+float e_x = 100;
+float e_y = 100;
 
 float goal_x = 0.0;
 float goal_y = 0.0;
@@ -48,7 +42,6 @@ ros::Publisher pubCanc;
 chrono::high_resolution_clock::time_point t_start;  
 chrono::high_resolution_clock::time_point t_end; 
 
-geometry_msgs::Twist teleopVel;
 geometry_msgs::Twist new_vel;
 
 /*
@@ -64,34 +57,6 @@ float ranges[720], right_side[320], left_side[320], front_side[80];
 
 float th = 0.5; // threshold which let us to consider a goal reached
 
-/*
-This is the callback function of the topic Velocity_control where Teleop is remapped.
-Teleop is used only in the manual and assisted drive, so it can not always publish
-on the cmd_vel topic, for this teleop is remapped on the Velocity_control topic.
-In this way if the user uses teleop during the auto mode, it doesn't make effect on 
-robot, becouse it publish on the Velocity_control topic that publish on the cmd_vel
-topic only in the manual and assisted mode.
-*/
-void velCallback(const geometry_msgs::Twist::ConstPtr & msg){
-
-		if(manual == true){
-
-			pubVel.publish(msg);
-
-		}
-		if(assisted == true){
-
-			new_vel.linear.x = msg->linear.x;
-    		new_vel.angular.z = msg->angular.z;
-
-		}
-		else{
-
-			return;
-			
-		}
-
-}
 
 /*
 This function is called when the custom server (server_interface) is called.
@@ -104,14 +69,13 @@ and publish on the move_base/cancel topic to cancel it.
 */
 bool interface(rt1_third_assignment::Interface::Request &req, rt1_third_assignment::Interface::Response &res){
 
-
 	if(req.command == 'm'){
 
 		manual = true;
 		auto_mode = false;
 		assisted = false;
 		cout<<"manual mode"<<endl;
-
+		
 	}
 	else if(req.command == 'a'){
 
@@ -122,17 +86,19 @@ bool interface(rt1_third_assignment::Interface::Request &req, rt1_third_assignme
 
 	}
 	else if(req.command == 'd'){
+		
 		assisted = true;
 		manual = true;
 		auto_mode = false;
 		cout<<"assisted driving mode"<<endl;
+
 	}
 	else if(req.command == 'c'){
 
 		actionlib_msgs::GoalID canc_goal;
 		canc_goal.id = id;
         pubCanc.publish(canc_goal);
-		cout<<"goal canceled"<<endl;
+		cout<<"goal canceled by the user"<<endl;
 
 	}
 
@@ -141,73 +107,104 @@ bool interface(rt1_third_assignment::Interface::Request &req, rt1_third_assignme
 }
 
 /*
+This is the callback function of the topic Velocity_control where Teleop is remapped.
+Teleop is used only in the manual and assisted drive, so it can not always publish
+on the cmd_vel topic, for this teleop is remapped on the Velocity_control topic.
+In this way if the user uses teleop during the auto mode, it doesn't make effect on 
+robot, becouse it publish on the Velocity_control topic that publish on the cmd_vel
+topic only in the manual and assisted mode.
+*/
+void velCallback(const geometry_msgs::Twist::ConstPtr & msg){
+
+	if(manual == true){
+
+		pubVel.publish(msg);
+
+	}
+	if(assisted == true){
+
+		new_vel.linear.x = msg->linear.x;
+		new_vel.angular.z = msg->angular.z;
+
+	}
+	if(auto_mode == true){
+
+		return;
+		
+	}
+}
+
+/*
 this function is used to take the position of the robot during its motion 
-using the move_base/feedback 
+using the move_base/feedback topic.
+So it takes the x and y coordinate of robot and compute the error distance 
+between the actual position of the robot and the goal position.
+If the error distance is acceptable (i.e. lower than a goal threshold) then
+it takes the id of the goal, that is continuously updated, and cancel the 
+the goal itself, using the topic /move_base/cancel, in order to say (in this 
+case) that the goal is reached.
+Instead if the timeout is elapsed than the goal is cancelled beacause it is
+unreachable.
 */
 void robotPosition(const move_base_msgs::MoveBaseActionFeedback::ConstPtr& msg) {
 
-    	// Take the current robot position
-
-    	robot_x = msg->feedback.base_position.pose.position.x;
-    	robot_y = msg->feedback.base_position.pose.position.y;
-    	//cout<<"robot pos x"<<robot_x<<endl;
+    // Take the current robot position
+	robot_x = msg->feedback.base_position.pose.position.x;
+	robot_y = msg->feedback.base_position.pose.position.y;
 
 	// Compute the error from the actual position and the goal position
-	dist_x = robot_x - goal_x;
-	dist_y = robot_y - goal_y;
+	e_x = robot_x - goal_x;
+	e_y = robot_y - goal_y;
 
 	if (id != msg->status.goal_id.id) {
 
         id = msg->status.goal_id.id;
 
-    	}
+    }
 
-	if(abs(dist_x) <= goal_th && abs(dist_y) <= goal_th){
+	if(abs(e_x) <= goal_th && abs(e_y) <= goal_th){
 
 		actionlib_msgs::GoalID canc_goal;
 		canc_goal.id = id;
-        	pubCanc.publish(canc_goal);
+        pubCanc.publish(canc_goal);
 		cout<<"goal reached"<<endl;
-
+		
 	}
 
 	
 	t_end = std::chrono::high_resolution_clock::now();
 	auto time = std::chrono::duration_cast<std::chrono::microseconds>(t_end - t_start).count();
+
 	if (time > timeout) {
+
 		actionlib_msgs::GoalID canc_goal;
-		printf("\nThe goal point can't be reached!\n");
+		cout<<"TIMEOUT ELAPSED : The goal point can't be reached!"<<endl;
 		canc_goal.id = id;
 		pubCanc.publish(canc_goal);
-		printf("Goal cancelled.\n");
+		cout<<"Goal cancelled."<<endl;
+
 	}
-	
     	
 }
-	
+
+/*
+This function is called when the custom server (server_goal) is called.
+It takes from the user interface node the coordinates of the desired 
+goal position (choosen by the user) and using an action client it sends
+this coordinates to the MoveBase action server that will move the robot
+towards the desired goal position.
+*/
 bool goalPosition(rt1_third_assignment::Goal::Request &req, rt1_third_assignment::Goal::Response &res){
 
 		move_base_msgs::MoveBaseGoal goal;
 
 		// this line constructs an action client that we'll use to communicate with the action named
-		// "move_base" that adheres to the MoveBaseAction interface. It also tells the action client to
-		// start a thread to call ros::spin() so that ROS callbacks will be processed by passing "true"
-		// as the second argument of the MoveBaseClient constructor.
-
-		//tell the action client that we want to spin a thread by default
-	
+		// "move_base" that adheres to the MoveBaseAction interface. 
 		MoveBaseClient ac("move_base",true);
 
 		// Here we create a goal to send to move_base using the move_base_msgs::MoveBaseGoal message
-		// type which is included automatically with the MoveBaseAction.h header. We'll just tell the 
-		// to move 1 meter forward in the "base_link" coordinate frame.
-		// The call to ac.sendGoal with actually push the goal out over the wire to the move_base node 
-		// for processing
-
-		//we will send a goal to the robot to move 1 meter forward
+		// type which is included automatically with the MoveBaseAction.h header.
 		goal.target_pose.header.frame_id = "map";
-		//goal.target_pose.header.stamp = ros::Time::now();
-	
 		goal.target_pose.pose.orientation.w = 1.0;
 		goal.target_pose.pose.position.x = req.x;
 		goal.target_pose.pose.position.y = req.y;
@@ -216,17 +213,18 @@ bool goalPosition(rt1_third_assignment::Goal::Request &req, rt1_third_assignment
 
 		// this line wait for the action server to report that it has come up and is ready to begin
 		// processing goals
-
-		// wait for the action server to come up
 		while(!ac.waitForServer(ros::Duration(5.0))){
 			ROS_INFO("Waiting for the move_base action server to come up");
 		}
 		
+		// The call to ac.sendGoal with actually push the goal out over the wire to the move_base node 
+		// for processing
 		ROS_INFO("Sending goal");
 		ac.sendGoal(goal);
 		
 		t_start = std::chrono::high_resolution_clock::now();
-		/* THIS PART DOESN'T WORK
+
+		/* THIS PART SHOULD BE CORRECT but DOESN'T WORK.
 
 		// the only thing left to do now is to wait for the goal to finish using the ac.waitForGoalToFinish 
 		// call which will block until the move_base action is done processing the goal we sent it. 
@@ -248,11 +246,13 @@ bool goalPosition(rt1_third_assignment::Goal::Request &req, rt1_third_assignment
 		}
 		
 		*/
-		
-
 		return true;
+
 	}
 
+// min_right_side is a function that takes as input parameter the ranges array
+// ,computes the minimum value among the right lateral distances contained in 
+// the right_side array and returns the minimum value as output.
 float min_right_side(float * r){
 	float min_r = 100;
 	int j = 0;
@@ -301,7 +301,7 @@ float min_front_side(float * r){
 
 
 // avoid_walls is a function used to avoid that the robot crashes on the walls
-// of the circuit. It takes as input parameters the front, left and right minimum
+// of the environment. It takes as input parameters the front, left and right minimum
 // values, computed by the min_left_side, min_right_side amd min_front_side
 // functions and using this values it checks if the robot crosses the threshold
 // ,for instance, firstly it checks if the front min value is less than th, 
@@ -309,60 +309,53 @@ float min_front_side(float * r){
 // is less than the right min and vice versa. If the left min is less than the right min 
 // it means that the nearest wall is on the left and so on.
 void avoid_walls(float front, float left, float right){
+	
+	//you are going forward
+	if(front < th){
 
-	float speed_d = left + right;
-
-	if(new_vel.linear.x > 0 && new_vel.angular.z == 0){ //you are going forward
-
-		if(front < th){
-
-			new_vel.linear.x = 0;
-			pubVel.publish(new_vel);
-			cout<<"There is an obstacle in front of you"<<endl;
-
-		}
-	}
-
-	else if(new_vel.linear.x >0 && new_vel.angular.z < 0){
-
-		if(right < th){
-
-			new_vel.linear.x = 0;
-			new_vel.angular.z = 0;
-			pubVel.publish(new_vel);
-			cout<<"There is an obstacle on the right"<<endl;
-
-		}
-	}
-
-	else if(new_vel.linear.x >0 && new_vel.angular.z > 0){
-
-		if(left < th){
-
-			new_vel.linear.x = 0;
-			new_vel.angular.z = 0;
-			pubVel.publish(new_vel);
-			cout<<"There is an obstacle on the left"<<endl;
-
-		}
+		new_vel.linear.x = -0.05;
+		pubVel.publish(new_vel);
+		cout<<"There is an obstacle in front of you"<<endl;
 
 	}
 
+	else if(right < th){
+
+		new_vel.linear.x = -0.05;
+		new_vel.angular.z = 0;
+		pubVel.publish(new_vel);
+		cout<<"There is an obstacle on the right"<<endl;
+
+	}
+
+	else if(left < th){
+
+		new_vel.linear.x = -0.05;
+		new_vel.angular.z = 0;
+		pubVel.publish(new_vel);
+		cout<<"There is an obstacle on the left"<<endl;
+
+	}
 }
 
-
+/*
+This function split the ranges data taken by the laser scan topic
+in three parts (front, left and right) and call the function 
+avoid_walls passing it these three data parts.
+*/
 void drivingAssistance(const sensor_msgs::LaserScan::ConstPtr& msg){
 
-	for(int i = 0; i < 720 ; i++){
-		ranges[i] = msg -> ranges[i]; 
+	if(assisted){
+		for(int i = 0; i < 720 ; i++){
+			ranges[i] = msg -> ranges[i]; 
+		}
+		
+		float f = min_front_side(ranges);
+		float l = min_left_side(ranges);
+		float r = min_right_side(ranges);
+		
+		avoid_walls(f, l, r);
 	}
-	
-	float f = min_front_side(ranges);
-	float l = min_left_side(ranges);
-	float r = min_right_side(ranges);
-	
-	avoid_walls(f, l, r);
-
 }
 
 int main(int argc, char** argv){
