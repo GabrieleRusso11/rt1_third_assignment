@@ -52,3 +52,7 @@ In this project there are two nodes :
 ### Auto Drive Mode 
 
 ![Automode_Flowchart](https://github.com/GabrieleRusso11/rt1_third_assignment/blob/main/Automode_Flowchart.png)
+
+### Manual Drive Mode 
+
+![Manualmode_Flowchart](https://github.com/GabrieleRusso11/rt1_third_assignment/blob/main/Manualmode_Flowchart.png)
