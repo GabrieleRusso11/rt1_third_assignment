@@ -38,3 +38,17 @@ execute one of the following behaviors (depending on the user’s input):
 * Assisted Drive Mode : let the user drive the robot assisting them to avoid collisions
 
 ![Environment](https://github.com/GabrieleRusso11/rt1_third_assignment/blob/main/Environment.png)
+
+## How It works
+
+For the implementation of this project is used ROS (Robot Operating System). ROS works through nodes that communicate with each other using Topic (which is messages transport system that implement the publish/subscribe model) and Service (which implement the request/response model).
+
+In this project there are two nodes :
+
+* The navigation controller node : which is the node that implements all the drive modalites of the robot (and more)
+
+* The User interface node : which is the link between the user and the navigation controller node
+
+### Auto Drive Mode 
+
+![Automode_Flowchart](https://github.com/GabrieleRusso11/rt1_third_assignment/blob/main/Automode_Flowchart.png)
