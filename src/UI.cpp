@@ -33,7 +33,7 @@ int main(int argc, char** argv){
         cin>>command;
 
         if(command == 1){  // the user has chosen the auto drive mode
-            int canc = 0;
+            
             com.request.command = 'a';
             client_interface.waitForExistence();
             client_interface.call(com);
