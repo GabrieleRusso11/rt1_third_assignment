@@ -81,15 +81,24 @@ The goal is cancelled even when the timeout is elapsed and obviously when the ro
 
 ### Manual Drive Mode 
 
-Firstly, to require the Auto drive mode the user has to insert, using the keyboard, the character "m".
+Firstly, to require the Manual drive mode the user has to insert, using the keyboard, the character "m".
 Secondly, the user interface node sends to the navigation controller, the user command through the custom service "interface".
-Then the navigation controller node through the interface service, calls the callback function interface that sets equal to true the boolean variable manual_mode (the others are false) in order to bypass the remapping of teleop twist keyboard and so now when the user use the teleop twist keyboard, it publishes the velocity on the cmd_vel topic.
+Then the navigation controller node through the interface service, calls the callback function interface that sets equal to true the boolean variable manual (the others are false) in order to bypass the remapping of teleop twist keyboard and so now when the user use the teleop twist keyboard, it publishes the velocity on the cmd_vel topic.
 Then the user can drive manually the robot using the teleop twist keyboard.
 
 ![Manualmode_Flowchart](https://github.com/GabrieleRusso11/rt1_third_assignment/blob/main/Manualmode_Flowchart.png)
 
 ### Assisted Drive Mode 
 
+Firstly, to require the Assisted drive mode the user has to insert, using the keyboard, the character "d".
+Secondly, the user interface node sends to the navigation controller, the user command through the custom service "interface".
+Then the navigation controller node through the interface service, calls the callback function interface that sets equal to true the boolean variables manual and assisted (auto_mode is false) in order to bypass the remapping of teleop twist keyboard, as in the previous case, and so now when the user use the teleop twist keyboard, it publishes the velocity on the cmd_vel topic.
+Furthermore each time that the laser scan detect a wall is called the callback function drivingAssistance which takes the minimum value of the right, left and front ranges and thanks to the avoid_walls function, let the robot to avoid the walls during the manual driving, publishing a new velocity, that obviously stops the robot to avoid the collision.
+
 ![Assistedmode_Flowchart](https://github.com/GabrieleRusso11/rt1_third_assignment/blob/main/Assistedmode_Flowchart.png)
 
-### Final consideration
+### Final considerations
+
+In the Auto drive modality, to stop the robot when the goal is reached it can be exploited a feature of the movebase Action server.
+Indeed, it is possible to use waitForResult, getState and cancelGoal to report that the robot has reached the goal, and to cancel the goal in the case that the timeout is elapsed.
+I have written the code, it should be correct but for same reason it doesn't work, so I commented it (It is from the line 227 to 248 of the navigation controller) and to do the same things described before, I have used the move_base/feedback topic that call the function robotPosition that implements all the features needed.
