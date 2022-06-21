@@ -56,3 +56,7 @@ In this project there are two nodes :
 ### Manual Drive Mode 
 
 ![Manualmode_Flowchart](https://github.com/GabrieleRusso11/rt1_third_assignment/blob/main/Manualmode_Flowchart.png)
+
+### Assisted Drive Mode 
+
+![Assistedmode_Flowchart](https://github.com/GabrieleRusso11/rt1_third_assignment/blob/main/Assistedmode_Flowchart.png)
