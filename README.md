@@ -17,7 +17,7 @@ git clone https://www.github.com/CarmineD8/slam_gmapping
 sudo apt-get install ros-noetic-navigation
 ```
 
-Lastly, Write on the shell the following command to execute all the project :
+Lastly, write on the shell the following command to execute all the project :
 
 ```
 roslaunch rt1_third_assignment assignment3.launch
@@ -29,7 +29,7 @@ The aim of this project is to develop a software architecture for the control
 of the robot in the environment. The software will rely on the move_base
 and gmapping packages for localizing the robot and plan the motion.
 The architecture should be able to get the user request, and let the robot 
-execute one of the following behaviors (depending on the user’s input):
+execute one of the following behaviours (depending on the user’s input):
 
 * Auto Drive Mode : autonomously reach a x,y coordinate inserted by the user
 
@@ -45,7 +45,7 @@ For the implementation of this project is used ROS (Robot Operating System). ROS
 
 In this project there are two nodes :
 
-* The navigation controller node : which is the node that implements all the drive modalites of the robot (and more)
+* The navigation controller node : which is the node that implements all the drive modalities of the robot (and more)
 
 * The User interface node : which is the link between the user and the navigation controller node
 
@@ -54,15 +54,15 @@ The command selected by the user is then passed to the Navigation controller thr
 So the navigation controller takes as input the user command and implement a specific modality, in order to satisfy the user request.
 The three main modalities are :
 
-* Auto Drive Mode
+* Auto Driving Mode
 
-* Manual Drive Mode
+* Manual Driving Mode
 
-* Assisted Drive Mode
+* Assisted Driving Mode
 
 ### Auto Drive Mode 
 
-Firstly, to require the Auto drive mode the user has to insert, using the keyboard, the character "a".
+Firstly, to require the Auto driving mode the user has to insert, using the keyboard, the character "a".
 Secondly, the user interface node asks to the user to insert the desired goal coordinates x and y.
 Thirdly, the user interface node sends to the navigation controller, the user command through the custom service "interface" and sends the desired goal coordinates through the custom service "goal".
 Then the navigation controller node through the interface and goal services, calls the callback functions interface and goalPosition.
@@ -81,7 +81,7 @@ The goal is cancelled even when the timeout is elapsed and obviously when the ro
 
 ### Manual Drive Mode 
 
-Firstly, to require the Manual drive mode the user has to insert, using the keyboard, the character "m".
+Firstly, to require the Manual driving mode the user has to insert, using the keyboard, the character "m".
 Secondly, the user interface node sends to the navigation controller, the user command through the custom service "interface".
 Then the navigation controller node through the interface service, calls the callback function interface that sets equal to true the boolean variable manual (the others are false) in order to bypass the remapping of teleop twist keyboard and so now when the user use the teleop twist keyboard, it publishes the velocity on the cmd_vel topic.
 Then the user can drive manually the robot using the teleop twist keyboard.
@@ -90,7 +90,7 @@ Then the user can drive manually the robot using the teleop twist keyboard.
 
 ### Assisted Drive Mode 
 
-Firstly, to require the Assisted drive mode the user has to insert, using the keyboard, the character "d".
+Firstly, to require the Assisted driving mode the user has to insert, using the keyboard, the character "d".
 Secondly, the user interface node sends to the navigation controller, the user command through the custom service "interface".
 Then the navigation controller node through the interface service, calls the callback function interface that sets equal to true the boolean variables manual and assisted (auto_mode is false) in order to bypass the remapping of teleop twist keyboard, as in the previous case, and so now when the user use the teleop twist keyboard, it publishes the velocity on the cmd_vel topic.
 Furthermore each time that the laser scan detect a wall is called the callback function drivingAssistance which takes the minimum value of the right, left and front ranges and thanks to the avoid_walls function, let the robot to avoid the walls during the manual driving, publishing a new velocity, that obviously stops the robot to avoid the collision.
