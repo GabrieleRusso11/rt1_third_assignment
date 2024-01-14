@@ -1,0 +1,57 @@
+\hypertarget{_u_i_8cpp}{}\doxysection{src/\+UI.cpp File Reference}
+\label{_u_i_8cpp}\index{src/UI.cpp@{src/UI.cpp}}
+
+
+the node that implements he link between the user and the navigation controller node  
+
+
+{\ttfamily \#include $<$ros/ros.\+h$>$}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$rt1\+\_\+third\+\_\+assignment/\+Goal.\+h$>$}\newline
+{\ttfamily \#include $<$rt1\+\_\+third\+\_\+assignment/\+Interface.\+h$>$}\newline
+Include dependency graph for U\+I.\+cpp\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{_u_i_8cpp__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{_u_i_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{main}} (int argc, char $\ast$$\ast$argv)
+\begin{DoxyCompactList}\small\item\em Main function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+the node that implements he link between the user and the navigation controller node 
+
+\begin{DoxyAuthor}{Author}
+Gabriele Russo 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+06/03/2022
+\end{DoxyDate}
+Custom Services\+:~\newline
+
+
+°/goal\+\_\+position custom client which sends the robot desired goal position to the navigation controller node
+
+°/commands custom client which sends the user commands to the navigation controller node
+
+Description\+:
+
+This node is a simple user interface used in order to allow the user to choose the robot drive mode. The user can choose the auto drive mode in which it has to insert the desired goal position that the robot has to reach autonomously. But it can choose also the manual and assisted drive mode. Then, the choices of the user are sent to the navigation controller node through a custom services (/goal\+\_\+position and /commands) 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{_u_i_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}\label{_u_i_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}} 
+\index{UI.cpp@{UI.cpp}!main@{main}}
+\index{main@{main}!UI.cpp@{UI.cpp}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv }\end{DoxyParamCaption})}
+
+
+
+Main function. 
+

@@ -1,0 +1,355 @@
+\hypertarget{navigation__controller_8cpp}{}\doxysection{src/navigation\+\_\+controller.cpp File Reference}
+\label{navigation__controller_8cpp}\index{src/navigation\_controller.cpp@{src/navigation\_controller.cpp}}
+
+
+the node that implements all the drive modalities of the robot (and more)  
+
+
+{\ttfamily \#include $<$ros/ros.\+h$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include $<$chrono$>$}\newline
+{\ttfamily \#include $<$move\+\_\+base\+\_\+msgs/\+Move\+Base\+Action.\+h$>$}\newline
+{\ttfamily \#include $<$move\+\_\+base\+\_\+msgs/\+Move\+Base\+Action\+Goal.\+h$>$}\newline
+{\ttfamily \#include $<$move\+\_\+base\+\_\+msgs/\+Move\+Base\+Action\+Feedback.\+h$>$}\newline
+{\ttfamily \#include $<$actionlib/client/simple\+\_\+action\+\_\+client.\+h$>$}\newline
+{\ttfamily \#include $<$sensor\+\_\+msgs/\+Laser\+Scan.\+h$>$}\newline
+{\ttfamily \#include $<$actionlib\+\_\+msgs/\+Goal\+I\+D.\+h$>$}\newline
+{\ttfamily \#include $<$rt1\+\_\+third\+\_\+assignment/\+Goal.\+h$>$}\newline
+{\ttfamily \#include $<$rt1\+\_\+third\+\_\+assignment/\+Interface.\+h$>$}\newline
+{\ttfamily \#include $<$geometry\+\_\+msgs/\+Twist.\+h$>$}\newline
+Include dependency graph for navigation\+\_\+controller.\+cpp\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{navigation__controller_8cpp__incl}
+\end{center}
+\end{figure}
+\doxysubsection*{Typedefs}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a21e20cc0b6656ae897b3cbb969b93241}\label{navigation__controller_8cpp_a21e20cc0b6656ae897b3cbb969b93241}} 
+typedef actionlib\+::\+Simple\+Action\+Client$<$ move\+\_\+base\+\_\+msgs\+::\+Move\+Base\+Action $>$ \mbox{\hyperlink{navigation__controller_8cpp_a21e20cc0b6656ae897b3cbb969b93241}{Move\+Base\+Client}}
+\begin{DoxyCompactList}\small\item\em this line creates a convenience typedef for a Simple\+Action\+Client that will allow us to communicate with actions that adhere to the Move\+Base\+Action action interface \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{navigation__controller_8cpp_aad501e885a00d79c0dfbf28112af8fd9}{interface}} (rt1\+\_\+third\+\_\+assignment\+::\+Interface\+::\+Request \&req, rt1\+\_\+third\+\_\+assignment\+::\+Interface\+::\+Response \&res)
+\begin{DoxyCompactList}\small\item\em interface function, used to compute the user commands \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{navigation__controller_8cpp_a03814876eb117e8027ff880de6b63929}{vel\+Callback}} (const geometry\+\_\+msgs\+::\+Twist\+::\+Const\+Ptr \&msg)
+\begin{DoxyCompactList}\small\item\em vel\+Callback function, executed each time a new robot velocity is published from teleop \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{navigation__controller_8cpp_afb11b81a819b0870f89687f4708d1e2a}{robot\+Position}} (const move\+\_\+base\+\_\+msgs\+::\+Move\+Base\+Action\+Feedback\+::\+Const\+Ptr \&msg)
+\begin{DoxyCompactList}\small\item\em robot\+Position function, used to obtain the updated robot position \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{navigation__controller_8cpp_ac5fa93e2808e6e8c2f8fe38e53d413ed}{goal\+Position}} (rt1\+\_\+third\+\_\+assignment\+::\+Goal\+::\+Request \&req, rt1\+\_\+third\+\_\+assignment\+::\+Goal\+::\+Response \&res)
+\begin{DoxyCompactList}\small\item\em goal\+Position function, used to obtain the goal coordinates from the user interface \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{navigation__controller_8cpp_a431f8bb04c3b06454f7b25bbebe2bed0}{min\+\_\+right\+\_\+side}} (float $\ast$r)
+\begin{DoxyCompactList}\small\item\em min\+\_\+right\+\_\+side function, used to obtain the minimum value of the right side ranges \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{navigation__controller_8cpp_ad45a8b389b8b1b726cfebe0a7acd2afa}{min\+\_\+left\+\_\+side}} (float $\ast$r)
+\begin{DoxyCompactList}\small\item\em min\+\_\+left\+\_\+side function, used to obtain the minimum value of the left side ranges \end{DoxyCompactList}\item 
+float \mbox{\hyperlink{navigation__controller_8cpp_af9bd59655df7fd46e1cb181794e4897d}{min\+\_\+front\+\_\+side}} (float $\ast$r)
+\begin{DoxyCompactList}\small\item\em min\+\_\+front\+\_\+side function, used to obtain the minimum value of the front side ranges \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{navigation__controller_8cpp_a2e739b03b075176d75141cb464e151b2}{avoid\+\_\+walls}} (float front, float left, float right)
+\begin{DoxyCompactList}\small\item\em avoid\+\_\+walls function, used to avoid that the robot crashes on the walls of the environment \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{navigation__controller_8cpp_a4c43c60aa1f08799d4154361b6749d90}{driving\+Assistance}} (const sensor\+\_\+msgs\+::\+Laser\+Scan\+::\+Const\+Ptr \&msg)
+\begin{DoxyCompactList}\small\item\em driving\+Assistance function, used to implement the driving assistance when the robot is in the assisted drive mode \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{navigation__controller_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}{main}} (int argc, char $\ast$$\ast$argv)
+\begin{DoxyCompactList}\small\item\em Main function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a87ffc14d6746aff1937d2819f359bc8f}\label{navigation__controller_8cpp_a87ffc14d6746aff1937d2819f359bc8f}} 
+double \mbox{\hyperlink{navigation__controller_8cpp_a87ffc14d6746aff1937d2819f359bc8f}{timeout}} = 120000000
+\begin{DoxyCompactList}\small\item\em timeout of 2 minutes \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_ad97b05b88ce9080f35b157cfacc8eb69}\label{navigation__controller_8cpp_ad97b05b88ce9080f35b157cfacc8eb69}} 
+string \mbox{\hyperlink{navigation__controller_8cpp_ad97b05b88ce9080f35b157cfacc8eb69}{id}} = \char`\"{}\char`\"{}
+\begin{DoxyCompactList}\small\item\em goal identifier \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_accabcd479bbf940d125f62cc4233f08e}\label{navigation__controller_8cpp_accabcd479bbf940d125f62cc4233f08e}} 
+bool \mbox{\hyperlink{navigation__controller_8cpp_accabcd479bbf940d125f62cc4233f08e}{auto\+\_\+mode}} = false
+\begin{DoxyCompactList}\small\item\em auto drive mode flag \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_ac3039562ceac7fca79eec81d1561b228}\label{navigation__controller_8cpp_ac3039562ceac7fca79eec81d1561b228}} 
+bool \mbox{\hyperlink{navigation__controller_8cpp_ac3039562ceac7fca79eec81d1561b228}{manual}} = false
+\begin{DoxyCompactList}\small\item\em manual drive mode flag \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_aba7d7d15ddf4beb964b0bcdd3af6e6ca}\label{navigation__controller_8cpp_aba7d7d15ddf4beb964b0bcdd3af6e6ca}} 
+bool \mbox{\hyperlink{navigation__controller_8cpp_aba7d7d15ddf4beb964b0bcdd3af6e6ca}{assisted}} = false
+\begin{DoxyCompactList}\small\item\em assisted drive mode flag \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a341517a9f9acd233b7d2ecea1bf10f60}\label{navigation__controller_8cpp_a341517a9f9acd233b7d2ecea1bf10f60}} 
+bool \mbox{\hyperlink{navigation__controller_8cpp_a341517a9f9acd233b7d2ecea1bf10f60}{canc}} = false
+\begin{DoxyCompactList}\small\item\em flag for cancelling the goal \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a94f98c123703f2950c9a529dd67ca5c5}\label{navigation__controller_8cpp_a94f98c123703f2950c9a529dd67ca5c5}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_a94f98c123703f2950c9a529dd67ca5c5}{robot\+\_\+x}}
+\begin{DoxyCompactList}\small\item\em the x coordinate of the robot position \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_ad10724c6ea6f6012098ff6267f6ffb65}\label{navigation__controller_8cpp_ad10724c6ea6f6012098ff6267f6ffb65}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_ad10724c6ea6f6012098ff6267f6ffb65}{robot\+\_\+y}}
+\begin{DoxyCompactList}\small\item\em the y coordinate of the robot position \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a4fea51ae132b7d4cfa489cc41b148302}\label{navigation__controller_8cpp_a4fea51ae132b7d4cfa489cc41b148302}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_a4fea51ae132b7d4cfa489cc41b148302}{e\+\_\+x}} = 100
+\begin{DoxyCompactList}\small\item\em the initialization of the x coordinate error \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_abf1ca1912bae7e38ade7b7e51ba9e742}\label{navigation__controller_8cpp_abf1ca1912bae7e38ade7b7e51ba9e742}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_abf1ca1912bae7e38ade7b7e51ba9e742}{e\+\_\+y}} = 100
+\begin{DoxyCompactList}\small\item\em the initialization of the y coordinate error \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_ac0df33c619e3c146b6f892ec65219336}\label{navigation__controller_8cpp_ac0df33c619e3c146b6f892ec65219336}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_ac0df33c619e3c146b6f892ec65219336}{goal\+\_\+x}} = 0.\+0
+\begin{DoxyCompactList}\small\item\em the initialization of the goal position x coordinate \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a86a424410ae6b4f43baca838da5f993b}\label{navigation__controller_8cpp_a86a424410ae6b4f43baca838da5f993b}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_a86a424410ae6b4f43baca838da5f993b}{goal\+\_\+y}} = 0.\+0
+\begin{DoxyCompactList}\small\item\em the initialization of the goal position y coordinate \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a572390ae5a3e4d235b93352743702bb4}\label{navigation__controller_8cpp_a572390ae5a3e4d235b93352743702bb4}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_a572390ae5a3e4d235b93352743702bb4}{goal\+\_\+th}} = 0.\+3
+\begin{DoxyCompactList}\small\item\em allowable position goal error threshold \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a22197de54c026ef97f0f99929418bb19}\label{navigation__controller_8cpp_a22197de54c026ef97f0f99929418bb19}} 
+ros\+::\+Publisher \mbox{\hyperlink{navigation__controller_8cpp_a22197de54c026ef97f0f99929418bb19}{pub\+Vel}}
+\begin{DoxyCompactList}\small\item\em the robot velocity publisher \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a309df6e106ea31e635c6bc3fac4fb835}\label{navigation__controller_8cpp_a309df6e106ea31e635c6bc3fac4fb835}} 
+ros\+::\+Publisher \mbox{\hyperlink{navigation__controller_8cpp_a309df6e106ea31e635c6bc3fac4fb835}{pub\+Canc}}
+\begin{DoxyCompactList}\small\item\em the goal cancellation publisher \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_ad69671e3c10c68f874067b94df670d62}\label{navigation__controller_8cpp_ad69671e3c10c68f874067b94df670d62}} 
+chrono\+::high\+\_\+resolution\+\_\+clock\+::time\+\_\+point \mbox{\hyperlink{navigation__controller_8cpp_ad69671e3c10c68f874067b94df670d62}{t\+\_\+start}}
+\begin{DoxyCompactList}\small\item\em the starting time instant \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_ad5c094c7564670963a5fa0a8c48d9df0}\label{navigation__controller_8cpp_ad5c094c7564670963a5fa0a8c48d9df0}} 
+chrono\+::high\+\_\+resolution\+\_\+clock\+::time\+\_\+point \mbox{\hyperlink{navigation__controller_8cpp_ad5c094c7564670963a5fa0a8c48d9df0}{t\+\_\+end}}
+\begin{DoxyCompactList}\small\item\em the ending time instant \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a087cd5236b3c060750c53df3e6f75011}\label{navigation__controller_8cpp_a087cd5236b3c060750c53df3e6f75011}} 
+geometry\+\_\+msgs\+::\+Twist \mbox{\hyperlink{navigation__controller_8cpp_a087cd5236b3c060750c53df3e6f75011}{new\+\_\+vel}}
+\begin{DoxyCompactList}\small\item\em new robot velocity to publish \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a4da00e5a9819f3105d708f0fe015ccfd}\label{navigation__controller_8cpp_a4da00e5a9819f3105d708f0fe015ccfd}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_a4da00e5a9819f3105d708f0fe015ccfd}{ranges}} \mbox{[}720\mbox{]}
+\begin{DoxyCompactList}\small\item\em will contain all distances detected by the laser scan sensor (between 0 and 180 degrees). \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_ad0045c43141887d450a4c6308094bc07}\label{navigation__controller_8cpp_ad0045c43141887d450a4c6308094bc07}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_ad0045c43141887d450a4c6308094bc07}{right\+\_\+side}} \mbox{[}320\mbox{]}
+\begin{DoxyCompactList}\small\item\em is a \textquotesingle{}ranges\textquotesingle{} subsection, which contains all lateral distances between 0 and 80 degrees. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_af6a0d91858732bd19612dfb6fda8403b}\label{navigation__controller_8cpp_af6a0d91858732bd19612dfb6fda8403b}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_af6a0d91858732bd19612dfb6fda8403b}{left\+\_\+side}} \mbox{[}320\mbox{]}
+\begin{DoxyCompactList}\small\item\em is a \textquotesingle{}ranges\textquotesingle{} subsection, which contains all lateral distances between 100 and 180 degrees. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a2c073c1868107df0291189635b7cc2d9}\label{navigation__controller_8cpp_a2c073c1868107df0291189635b7cc2d9}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_a2c073c1868107df0291189635b7cc2d9}{front\+\_\+side}} \mbox{[}80\mbox{]}
+\begin{DoxyCompactList}\small\item\em is a \textquotesingle{}ranges\textquotesingle{} subsection, which contains all frontal distances between 80 and 100 degrees. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{navigation__controller_8cpp_a29a4aeea7841d065baa8fb5b1d05f95b}\label{navigation__controller_8cpp_a29a4aeea7841d065baa8fb5b1d05f95b}} 
+float \mbox{\hyperlink{navigation__controller_8cpp_a29a4aeea7841d065baa8fb5b1d05f95b}{th}} = 0.\+5
+\begin{DoxyCompactList}\small\item\em threshold which let us to consider a goal reached \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+the node that implements all the drive modalities of the robot (and more) 
+
+\begin{DoxyAuthor}{Author}
+Gabriele Russo 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+06/03/2022
+\end{DoxyDate}
+Subscribes to\+:~\newline
+
+
+°/\+Velocity\+\_\+control the remapped topic used to control the robot in the manual/assisted driving mode
+
+°/move\+\_\+base/feedback topic which contains the current robot position
+
+°/scan topic which contains the output of the robot laser scan
+
+Publishes to\+:~\newline
+
+
+°/cmd\+\_\+vel in order to modify the robot velocity in the assisted driving mode
+
+°/move\+\_\+base/cancel in order to cancel the move base goal
+
+Custom Services\+:~\newline
+
+
+°/goal\+\_\+position custom server which receives the robot desired goal position from the user interface node
+
+°/commands custom server which receives the user commands from the user interface node
+
+Description\+:
+
+This node receives from the user interface node the drive mode chosen by the user. There are three drive mode\+:
+
+Auto drive mode\+: in this case the user insert a desired robot position, and the robot will try to reach the goal position (autonomously) using the move base action server
+
+Manual drive mode\+: in this case the user will be able to control the robot using the teleop twist keyboard. Hence, the user will can drive manually the robot towards a desired position
+
+Assisted drive mode\+: in this case the user can drive manually the robot, as in the manual drive mode, but in this case there will be an assisted drive mode that will avoid the walls (and the obstacle) autonomously, when the user drives the robot towards a wall. 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{navigation__controller_8cpp_a2e739b03b075176d75141cb464e151b2}\label{navigation__controller_8cpp_a2e739b03b075176d75141cb464e151b2}} 
+\index{navigation\_controller.cpp@{navigation\_controller.cpp}!avoid\_walls@{avoid\_walls}}
+\index{avoid\_walls@{avoid\_walls}!navigation\_controller.cpp@{navigation\_controller.cpp}}
+\doxysubsubsection{\texorpdfstring{avoid\_walls()}{avoid\_walls()}}
+{\footnotesize\ttfamily void avoid\+\_\+walls (\begin{DoxyParamCaption}\item[{float}]{front,  }\item[{float}]{left,  }\item[{float}]{right }\end{DoxyParamCaption})}
+
+
+
+avoid\+\_\+walls function, used to avoid that the robot crashes on the walls of the environment 
+
+
+\begin{DoxyParams}{Parameters}
+{\em front} & the minimum value of the front side ranges \\
+\hline
+{\em left} & the minimum value of the left side ranges \\
+\hline
+{\em right} & the minimum value of the right side ranges\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+avoid\+\_\+walls is a function used to avoid that the robot crashes on the walls of the environment. It takes as input parameters the front, left and right minimum values, computed by the min\+\_\+left\+\_\+side, min\+\_\+right\+\_\+side amd min\+\_\+front\+\_\+side functions and using this values it checks if the robot crosses the threshold ,for instance, firstly it checks if the front min value is less than th, if it isn\textquotesingle{}t ,the robot go on ,otherwise it checks if the left min is less than the right min and vice versa. If the left min is less than the right min it means that the nearest wall is on the left and so on. \mbox{\Hypertarget{navigation__controller_8cpp_a4c43c60aa1f08799d4154361b6749d90}\label{navigation__controller_8cpp_a4c43c60aa1f08799d4154361b6749d90}} 
+\index{navigation\_controller.cpp@{navigation\_controller.cpp}!drivingAssistance@{drivingAssistance}}
+\index{drivingAssistance@{drivingAssistance}!navigation\_controller.cpp@{navigation\_controller.cpp}}
+\doxysubsubsection{\texorpdfstring{drivingAssistance()}{drivingAssistance()}}
+{\footnotesize\ttfamily void driving\+Assistance (\begin{DoxyParamCaption}\item[{const sensor\+\_\+msgs\+::\+Laser\+Scan\+::\+Const\+Ptr \&}]{msg }\end{DoxyParamCaption})}
+
+
+
+driving\+Assistance function, used to implement the driving assistance when the robot is in the assisted drive mode 
+
+
+\begin{DoxyParams}{Parameters}
+{\em msg} & laser scan data\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+This function split the ranges data taken by the laser scan topic in three parts (front, left and right) and call the function avoid\+\_\+walls passing it these three data parts. \mbox{\Hypertarget{navigation__controller_8cpp_ac5fa93e2808e6e8c2f8fe38e53d413ed}\label{navigation__controller_8cpp_ac5fa93e2808e6e8c2f8fe38e53d413ed}} 
+\index{navigation\_controller.cpp@{navigation\_controller.cpp}!goalPosition@{goalPosition}}
+\index{goalPosition@{goalPosition}!navigation\_controller.cpp@{navigation\_controller.cpp}}
+\doxysubsubsection{\texorpdfstring{goalPosition()}{goalPosition()}}
+{\footnotesize\ttfamily bool goal\+Position (\begin{DoxyParamCaption}\item[{rt1\+\_\+third\+\_\+assignment\+::\+Goal\+::\+Request \&}]{req,  }\item[{rt1\+\_\+third\+\_\+assignment\+::\+Goal\+::\+Response \&}]{res }\end{DoxyParamCaption})}
+
+
+
+goal\+Position function, used to obtain the goal coordinates from the user interface 
+
+
+\begin{DoxyParams}{Parameters}
+{\em req} & client request, the goal coordinates \\
+\hline
+{\em res} & server response, no response\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true
+\end{DoxyReturn}
+This function is called when the custom server (server\+\_\+goal) is called. It takes from the user interface node the coordinates of the desired goal position (choosen by the user) and using an action client it sends this coordinates to the Move\+Base action server that will move the robot towards the desired goal position. \mbox{\Hypertarget{navigation__controller_8cpp_aad501e885a00d79c0dfbf28112af8fd9}\label{navigation__controller_8cpp_aad501e885a00d79c0dfbf28112af8fd9}} 
+\index{navigation\_controller.cpp@{navigation\_controller.cpp}!interface@{interface}}
+\index{interface@{interface}!navigation\_controller.cpp@{navigation\_controller.cpp}}
+\doxysubsubsection{\texorpdfstring{interface()}{interface()}}
+{\footnotesize\ttfamily bool interface (\begin{DoxyParamCaption}\item[{rt1\+\_\+third\+\_\+assignment\+::\+Interface\+::\+Request \&}]{req,  }\item[{rt1\+\_\+third\+\_\+assignment\+::\+Interface\+::\+Response \&}]{res }\end{DoxyParamCaption})}
+
+
+
+interface function, used to compute the user commands 
+
+
+\begin{DoxyParams}{Parameters}
+{\em req} & client reequest, the user commands \\
+\hline
+{\em res} & server response, no response\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true
+\end{DoxyReturn}
+This function is called when the custom server (server\+\_\+interface) is called. It takes from the user interface node the command, given by the user. For the auto, manual and assisted mode it sets the value of 3 boolean variable that are then used in the vel\+Callback function to say if teleop can publish on teleop or not. Instead when the user wants to cancel the actual goal, it checks the id of the goal and publish on the move\+\_\+base/cancel topic to cancel it. \mbox{\Hypertarget{navigation__controller_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}\label{navigation__controller_8cpp_a3c04138a5bfe5d72780bb7e82a18e627}} 
+\index{navigation\_controller.cpp@{navigation\_controller.cpp}!main@{main}}
+\index{main@{main}!navigation\_controller.cpp@{navigation\_controller.cpp}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv }\end{DoxyParamCaption})}
+
+
+
+Main function. 
+
+\mbox{\Hypertarget{navigation__controller_8cpp_af9bd59655df7fd46e1cb181794e4897d}\label{navigation__controller_8cpp_af9bd59655df7fd46e1cb181794e4897d}} 
+\index{navigation\_controller.cpp@{navigation\_controller.cpp}!min\_front\_side@{min\_front\_side}}
+\index{min\_front\_side@{min\_front\_side}!navigation\_controller.cpp@{navigation\_controller.cpp}}
+\doxysubsubsection{\texorpdfstring{min\_front\_side()}{min\_front\_side()}}
+{\footnotesize\ttfamily float min\+\_\+front\+\_\+side (\begin{DoxyParamCaption}\item[{float $\ast$}]{r }\end{DoxyParamCaption})}
+
+
+
+min\+\_\+front\+\_\+side function, used to obtain the minimum value of the front side ranges 
+
+
+\begin{DoxyParams}{Parameters}
+{\em r} & pointer to the ranges array\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+min\+\_\+f the minimum value of the front side ranges
+\end{DoxyReturn}
+min\+\_\+front\+\_\+side is a function that takes as input parameter the ranges array ,computes the minimum value among the frontal distances contained in the front\+\_\+side array and returns the minimum value as output. \mbox{\Hypertarget{navigation__controller_8cpp_ad45a8b389b8b1b726cfebe0a7acd2afa}\label{navigation__controller_8cpp_ad45a8b389b8b1b726cfebe0a7acd2afa}} 
+\index{navigation\_controller.cpp@{navigation\_controller.cpp}!min\_left\_side@{min\_left\_side}}
+\index{min\_left\_side@{min\_left\_side}!navigation\_controller.cpp@{navigation\_controller.cpp}}
+\doxysubsubsection{\texorpdfstring{min\_left\_side()}{min\_left\_side()}}
+{\footnotesize\ttfamily float min\+\_\+left\+\_\+side (\begin{DoxyParamCaption}\item[{float $\ast$}]{r }\end{DoxyParamCaption})}
+
+
+
+min\+\_\+left\+\_\+side function, used to obtain the minimum value of the left side ranges 
+
+
+\begin{DoxyParams}{Parameters}
+{\em r} & pointer to the ranges array\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+min\+\_\+l the minimum value of the left side ranges
+\end{DoxyReturn}
+min\+\_\+left\+\_\+side is a function that takes as input parameter the ranges array ,computes the minimum value among the left lateral distances contained in the left\+\_\+side array and returns the minimum value as output. \mbox{\Hypertarget{navigation__controller_8cpp_a431f8bb04c3b06454f7b25bbebe2bed0}\label{navigation__controller_8cpp_a431f8bb04c3b06454f7b25bbebe2bed0}} 
+\index{navigation\_controller.cpp@{navigation\_controller.cpp}!min\_right\_side@{min\_right\_side}}
+\index{min\_right\_side@{min\_right\_side}!navigation\_controller.cpp@{navigation\_controller.cpp}}
+\doxysubsubsection{\texorpdfstring{min\_right\_side()}{min\_right\_side()}}
+{\footnotesize\ttfamily float min\+\_\+right\+\_\+side (\begin{DoxyParamCaption}\item[{float $\ast$}]{r }\end{DoxyParamCaption})}
+
+
+
+min\+\_\+right\+\_\+side function, used to obtain the minimum value of the right side ranges 
+
+
+\begin{DoxyParams}{Parameters}
+{\em r} & pointer to the ranges array\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+min\+\_\+r the minimum value of the right side ranges
+\end{DoxyReturn}
+min\+\_\+right\+\_\+side is a function that takes as input parameter the ranges array ,computes the minimum value among the right lateral distances contained in the right\+\_\+side array and returns the minimum value as output. \mbox{\Hypertarget{navigation__controller_8cpp_afb11b81a819b0870f89687f4708d1e2a}\label{navigation__controller_8cpp_afb11b81a819b0870f89687f4708d1e2a}} 
+\index{navigation\_controller.cpp@{navigation\_controller.cpp}!robotPosition@{robotPosition}}
+\index{robotPosition@{robotPosition}!navigation\_controller.cpp@{navigation\_controller.cpp}}
+\doxysubsubsection{\texorpdfstring{robotPosition()}{robotPosition()}}
+{\footnotesize\ttfamily void robot\+Position (\begin{DoxyParamCaption}\item[{const move\+\_\+base\+\_\+msgs\+::\+Move\+Base\+Action\+Feedback\+::\+Const\+Ptr \&}]{msg }\end{DoxyParamCaption})}
+
+
+
+robot\+Position function, used to obtain the updated robot position 
+
+
+\begin{DoxyParams}{Parameters}
+{\em msg} & move base goal informations\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+This function is used to take the position of the robot during its motion using the move\+\_\+base/feedback topic. So it takes the x and y coordinate of robot and compute the error distance between the actual position of the robot and the goal position. If the error distance is acceptable (i.\+e. lower than a goal threshold) then it takes the id of the goal, that is continuously updated, and cancel the the goal itself, using the topic /move\+\_\+base/cancel, in order to say (in this case) that the goal is reached. Instead if the timeout is elapsed than the goal is cancelled beacause it is unreachable. \mbox{\Hypertarget{navigation__controller_8cpp_a03814876eb117e8027ff880de6b63929}\label{navigation__controller_8cpp_a03814876eb117e8027ff880de6b63929}} 
+\index{navigation\_controller.cpp@{navigation\_controller.cpp}!velCallback@{velCallback}}
+\index{velCallback@{velCallback}!navigation\_controller.cpp@{navigation\_controller.cpp}}
+\doxysubsubsection{\texorpdfstring{velCallback()}{velCallback()}}
+{\footnotesize\ttfamily void vel\+Callback (\begin{DoxyParamCaption}\item[{const geometry\+\_\+msgs\+::\+Twist\+::\+Const\+Ptr \&}]{msg }\end{DoxyParamCaption})}
+
+
+
+vel\+Callback function, executed each time a new robot velocity is published from teleop 
+
+
+\begin{DoxyParams}{Parameters}
+{\em msg} & robot velocity\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+This is the callback function of the topic Velocity\+\_\+control where Teleop is remapped. Teleop is used only in the manual and assisted drive, so it can not always publish on the cmd\+\_\+vel topic, for this teleop is remapped on the Velocity\+\_\+control topic. In this way if the user uses teleop during the auto mode, it doesn\textquotesingle{}t make effect on robot, becouse it publish on the Velocity\+\_\+control topic that publish on the cmd\+\_\+vel topic only in the manual and assisted mode. 

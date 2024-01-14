@@ -1,3 +1,30 @@
+/**
+* \file UI.cpp
+* \brief the node that implements he link between the user and the navigation controller node
+* \author Gabriele Russo
+* \date 06/03/2022
+*
+* \details
+*
+* Custom Services:<BR>
+*
+* °/goal_position custom client which sends the robot desired goal position to the navigation controller node
+*
+* °/commands custom client which sends the user commands to the navigation controller node
+*
+*
+* Description:
+*
+* This node is a simple user interface used in order to allow the user 
+* to choose the robot drive mode. The user can choose the auto drive mode
+* in which it has to insert the desired goal position that the robot has
+* to reach autonomously. But it can choose also the manual and assisted 
+* drive mode.
+* Then, the choices of the user are sent to the navigation controller node 
+* through a custom services (/goal_position and /commands)
+*
+**/
+
 #include <ros/ros.h>
 #include <iostream>
 #include <rt1_third_assignment/Goal.h>
@@ -5,6 +32,11 @@
 
 using namespace std;
 
+/**
+*
+* @brief Main function
+*
+**/
 int main(int argc, char** argv){
 
 	ros::init(argc, argv, "user_interface");
