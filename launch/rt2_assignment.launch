@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<include file="$(find final_assignment)/launch/simulation_gmapping.launch" />
+	<include file="$(find final_assignment)/launch/move_base.launch" />
+
+	<node name="controller_node" pkg="rt1_third_assignment" type="controller_node" output="screen" launch-prefix="xterm -e"/>
+
+	<remap from="cmd_vel" to="Velocity_control" />
+	<node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen" launch-prefix="xterm -e"/>
+	      
+	
+</launch>
