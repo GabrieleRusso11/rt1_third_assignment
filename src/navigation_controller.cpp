@@ -230,7 +230,7 @@ void robotPosition(const move_base_msgs::MoveBaseActionFeedback::ConstPtr& msg) 
 		actionlib_msgs::GoalID canc_goal;
 		canc_goal.id = id;
         pubCanc.publish(canc_goal);
-		cout<<"goal reached"<<endl;
+		//cout<<"goal reached"<<endl;
 		
 	}
 
@@ -241,10 +241,10 @@ void robotPosition(const move_base_msgs::MoveBaseActionFeedback::ConstPtr& msg) 
 	if (time > timeout) {
 
 		actionlib_msgs::GoalID canc_goal;
-		cout<<"TIMEOUT ELAPSED : The goal point can't be reached!"<<endl;
+		//cout<<"TIMEOUT ELAPSED : The goal point can't be reached!"<<endl;
 		canc_goal.id = id;
 		pubCanc.publish(canc_goal);
-		cout<<"Goal cancelled."<<endl;
+		//cout<<"Goal cancelled."<<endl;
 
 	}
     	
@@ -296,28 +296,24 @@ bool goalPosition(rt1_third_assignment::Goal::Request &req, rt1_third_assignment
 	
 	t_start = std::chrono::high_resolution_clock::now();
 
-	/* THIS PART SHOULD BE CORRECT but DOESN'T WORK.
-
 	// the only thing left to do now is to wait for the goal to finish using the ac.waitForGoalToFinish 
 	// call which will block until the move_base action is done processing the goal we sent it. 
 	// After it finishes, we can check if the goal succeded or failed and output a message to the user 
 	// accordingly.
 	if(ac.waitForResult(ros::Duration(timeout))){
-		cout<<"ciaoo"<<endl;
 		if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED){
 			ROS_INFO("The goal is reached");
-			res.feedback = 0; // the User Interface node will receive "okay" as feedback
+			res.goal_feedback = "Goal Reached"; // the User Interface node will receive "okay" as feedback
 		}else{
 			ROS_INFO("The goal is not reachable");
-			res.feedback = 1; // the User Interface node will receive "error" as feedback
+			res.goal_feedback = "Goal Not Reachable"; // the User Interface node will receive "error" as feedback
 		}
 	}else{
 		ROS_INFO("Action timed out.");
-		res.feedback = 1; // the User Interface node will receive "error" as feedback
+		res.goal_feedback = "Goal not reachable"; // the User Interface node will receive "error" as feedback
 		ac.cancelGoal();
 	}
 	
-	*/
 	return true;
 
 }
@@ -491,7 +487,7 @@ int main(int argc, char** argv){
 	
 	ros::Subscriber subTeleVel = n.subscribe("/Velocity_control", 1000, velCallback); // teleop remapping
 
-	ros::Subscriber subPos = n.subscribe("/move_base/feedback", 1000, robotPosition);
+	//ros::Subscriber subPos = n.subscribe("/move_base/feedback", 1000, robotPosition);
 
 	ros::Subscriber sub_laser = n.subscribe("/scan", 1000, drivingAssistance); // Laser scanner
 	
